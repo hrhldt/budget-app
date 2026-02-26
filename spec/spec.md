@@ -1,4 +1,4 @@
-Project: Centsible
+Project: Cashually
 
 Goal
 Build a simple web app to track individual expenses grouped by month.
@@ -45,7 +45,7 @@ Data model
     - Entertainment
 
 Local storage
-- Storage key: centsible:v1
+- Storage key: cashually:v1
 - Persist the full Month object for the currently viewed month.
 - On load, restore last saved month; if none, initialize with current month and empty data.
 

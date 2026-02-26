@@ -3,22 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Centsible</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪙</text></svg>">
+  <title>Cashually</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💸</text></svg>">
   <meta name="theme-color" content="#5856d6" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#7d7aff" media="(prefers-color-scheme: dark)">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Centsible">
+  <meta name="apple-mobile-web-app-title" content="Cashually">
   <meta name="description" content="A simple, elegant budget tracker. No sign-ups, no servers — just you and your money.">
-  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪙</text></svg>">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💸</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer">
   <style>
 /* ============================================
-   Centsible — CSS
+   Cashually — CSS
    ============================================ */
 
 /* ---------- Custom properties ---------- */
@@ -699,7 +699,7 @@ h1, h2, h3 {
   <div class="app">
     <!-- Header -->
     <header class="header">
-      <h1 class="logo">Centsible</h1>
+      <h1 class="logo">Cashually</h1>
       <div class="header-controls">
         <select class="currency-select" id="currencySelect" aria-label="Select currency">
           <option value="USD">$ USD</option>
@@ -853,16 +853,16 @@ h1, h2, h3 {
 
   <script>
 /* ============================================
-   Centsible — App Logic
+   Cashually — App Logic
    ============================================ */
 
 (() => {
   'use strict';
 
   // ---- Constants ----
-  const STORAGE_KEY = 'centsible:v1';
-  const THEME_KEY = 'centsible:theme';
-  const CURRENCY_KEY = 'centsible:currency';
+  const STORAGE_KEY = 'cashually:v1';
+  const THEME_KEY = 'cashually:theme';
+  const CURRENCY_KEY = 'cashually:currency';
 
   // ---- DOM refs ----
   const $ = (sel) => document.querySelector(sel);
@@ -1286,8 +1286,8 @@ h1, h2, h3 {
   // ---- PWA: Inline Manifest & Service Worker ----
   // Manifest via Blob URL (works without a separate file)
   const manifest = {
-    name: 'Centsible - Budget Tracker',
-    short_name: 'Centsible',
+    name: 'Cashually - Budget Tracker',
+    short_name: 'Cashually',
     description: 'A simple, elegant budget tracker.',
     start_url: '.',
     display: 'standalone',
@@ -1295,7 +1295,7 @@ h1, h2, h3 {
     theme_color: '#5856d6',
     icons: [
       {
-        src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪙</text></svg>",
+        src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💸</text></svg>",
         sizes: 'any',
         type: 'image/svg+xml',
         purpose: 'any'
@@ -1311,7 +1311,7 @@ h1, h2, h3 {
   // Service worker via Blob URL (only when served over HTTP/HTTPS)
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     const swCode = `
-      const CACHE_NAME = 'centsible-v1';
+      const CACHE_NAME = 'cashually-v1';
       const ASSETS = ['./', self.location.href.replace(/sw\.js.*$/, '')];
 
       self.addEventListener('install', (e) => {

@@ -1,4 +1,4 @@
-# 🪙 Centsible
+# 💸 Cashually
 
 Your budget's new best friend. No sign-ups, no servers, no nonsense — just you, your money, and a single HTML file.
 
