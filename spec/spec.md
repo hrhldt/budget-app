@@ -76,7 +76,13 @@ Core requirements
     - All budget and expenses persist via local storage.
 
 UI/UX requirements
-- Modern, clean, minimal design.
+- Modern, clean, minimal design with elevated polish.
+- Glassmorphism-style cards (semi-transparent backgrounds with backdrop blur).
+- Gradient accent color used for logo, primary buttons, and progress bars.
+- Layered shadow system (sm / md / lg) for depth hierarchy.
+- Micro-interactions: hover lifts on cards and expense rows, scale on icon buttons, slide-up modal entrance.
+- Focus rings with soft accent glow on inputs and selects.
+- Smooth cubic-bezier transitions throughout.
 - Custom font pair (distinct for headings and body).
 - All icons use Font Awesome (loaded via CDN).
 - All icons must be clearly visible in both light and dark modes (use theme-aware colors).
