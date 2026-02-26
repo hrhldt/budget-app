@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Cashually">
   <meta name="description" content="A simple, elegant budget tracker. No sign-ups, no servers — just you and your money.">
-  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="apple-touch-icon" id="appleTouchIcon" href="icon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1284,29 +1284,68 @@ h1, h2, h3 {
   render();
 
   // ---- PWA: Inline Manifest & Service Worker ----
-  // Manifest via Blob URL (works without a separate file)
-  const manifest = {
-    name: 'Cashually - Budget Tracker',
-    short_name: 'Cashually',
-    description: 'A simple, elegant budget tracker.',
-    start_url: '.',
-    display: 'standalone',
-    background_color: '#f2f2f7',
-    theme_color: '#5856d6',
-    icons: [
-      {
-        src: 'icon.svg',
-        sizes: 'any',
-        type: 'image/svg+xml',
-        purpose: 'any'
+  // Convert SVG icon to PNG data URL for PWA compatibility
+  function generatePwaIcon(size) {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      img.onload = () => {
+        ctx.drawImage(img, 0, 0, size, size);
+        resolve(canvas.toDataURL('image/png'));
+      };
+      img.onerror = () => resolve(null);
+      img.src = 'icon.svg';
+    });
+  }
+
+  async function initPwa() {
+    // Generate PNG icons from SVG
+    const sizes = [192, 512];
+    const pngIcons = [];
+    for (const size of sizes) {
+      const dataUrl = await generatePwaIcon(size);
+      if (dataUrl) {
+        pngIcons.push({ src: dataUrl, sizes: `${size}x${size}`, type: 'image/png', purpose: 'any' });
       }
-    ]
-  };
-  const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
-  const manifestLink = document.createElement('link');
-  manifestLink.rel = 'manifest';
-  manifestLink.href = URL.createObjectURL(manifestBlob);
-  document.head.appendChild(manifestLink);
+    }
+
+    // Set apple-touch-icon to PNG
+    const icon180 = await generatePwaIcon(180);
+    if (icon180) {
+      const appleTouchIcon = document.getElementById('appleTouchIcon');
+      if (appleTouchIcon) appleTouchIcon.href = icon180;
+    }
+
+    // Fall back to SVG if PNG generation failed
+    const iconUrl = new URL('icon.svg', location.href).href;
+    const iconEntries = pngIcons.length > 0
+      ? pngIcons
+      : [{ src: iconUrl, sizes: 'any', type: 'image/svg+xml', purpose: 'any' }];
+
+    // Manifest via Blob URL
+    const manifest = {
+      name: 'Cashually - Budget Tracker',
+      short_name: 'Cashually',
+      description: 'A simple, elegant budget tracker.',
+      start_url: location.href,
+      display: 'standalone',
+      background_color: '#f2f2f7',
+      theme_color: '#5856d6',
+      icons: iconEntries
+    };
+    const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+    const manifestLink = document.createElement('link');
+    manifestLink.rel = 'manifest';
+    manifestLink.href = URL.createObjectURL(manifestBlob);
+    document.head.appendChild(manifestLink);
+  }
+
+  if (location.protocol !== 'file:') {
+    initPwa();
+  }
 
   // Service worker via Blob URL (only when served over HTTP/HTTPS)
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
