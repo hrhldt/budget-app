@@ -60,6 +60,10 @@ Core requirements
     - Expenses are grouped under the active month.
     - In the expense list, expenses are grouped by tag with a tag header showing the tag name and subtotal.
     - A spending-by-tag breakdown section shows total spent per tag, sorted by amount descending.
+- Spending graph
+    - A visual progress bar in the overview shows the percentage of budget spent.
+    - Bar color shifts from accent (under 75%) → amber/warning (75-100%) → red (over budget).
+    - Legend shows formatted spent and remaining amounts.
 - Daily spending guidance
     - When adding an expense, calculate the daily spending allowance.
     - Daily allowance = (budget - totalSpent) / remaining days in current month.

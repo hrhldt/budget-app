@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Centsible — Budget Tracker</title>
+  <title>Centsible</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -214,6 +214,99 @@ h1, h2, h3 {
   background: var(--red-bg);
 }
 .remaining-card.status-over .overview-value { color: var(--red); }
+
+/* ---------- Spending graph ---------- */
+.spending-graph {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.spending-graph-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+}
+
+.spending-graph-title {
+  font-size: .75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--text-secondary);
+}
+
+.spending-graph-pct {
+  font-family: var(--font-heading);
+  font-size: .9rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.spending-bar-track {
+  position: relative;
+  height: 14px;
+  background: var(--bg);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.spending-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+  transition: width .5s cubic-bezier(.4,0,.2,1), background .3s ease;
+  min-width: 0;
+}
+
+.spending-bar-fill.warn {
+  background: #f59e0b;
+}
+
+.spending-bar-fill.over {
+  background: var(--red);
+}
+
+.spending-bar-budget-mark {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  background: var(--text);
+  border-radius: 1px;
+  opacity: .35;
+}
+
+.spending-graph-legend {
+  display: flex;
+  justify-content: space-between;
+  font-size: .75rem;
+  color: var(--text-secondary);
+}
+
+.spending-graph-legend span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.legend-dot.spent { background: var(--accent); }
+.legend-dot.spent.warn { background: #f59e0b; }
+.legend-dot.spent.over { background: var(--red); }
+.legend-dot.remaining { background: var(--bg); border: 1px solid var(--border); }
 
 /* ---------- Daily guidance ---------- */
 .daily-guidance {
@@ -616,6 +709,21 @@ h1, h2, h3 {
       </div>
     </section>
 
+    <!-- Spending graph -->
+    <section class="spending-graph" id="spendingGraph">
+      <div class="spending-graph-header">
+        <span class="spending-graph-title">Budget Used</span>
+        <span class="spending-graph-pct" id="spendingPct">0%</span>
+      </div>
+      <div class="spending-bar-track">
+        <div class="spending-bar-fill" id="spendingBarFill" style="width:0%"></div>
+      </div>
+      <div class="spending-graph-legend">
+        <span><span class="legend-dot spent" id="legendDotSpent"></span> <span id="legendSpent">Spent</span></span>
+        <span><span class="legend-dot remaining"></span> <span id="legendRemaining">Remaining</span></span>
+      </div>
+    </section>
+
     <!-- Daily guidance -->
     <section class="daily-guidance" id="dailyGuidance"></section>
 
@@ -836,6 +944,9 @@ h1, h2, h3 {
     spentDisplay.textContent = fmt(spent);
     remainingDisplay.textContent = fmt(remaining);
 
+    // Spending graph
+    renderSpendingGraph(spent, monthData.budget);
+
     remainingCard.classList.remove('status-ok', 'status-over');
     if (spent > monthData.budget) {
       remainingCard.classList.add('status-over');
@@ -854,6 +965,42 @@ h1, h2, h3 {
     }
 
     renderExpenses();
+  }
+
+  function renderSpendingGraph(spent, budget) {
+    const pctEl = $('#spendingPct');
+    const fillEl = $('#spendingBarFill');
+    const legendDot = $('#legendDotSpent');
+    const legendSpentEl = $('#legendSpent');
+    const legendRemainingEl = $('#legendRemaining');
+
+    if (budget <= 0) {
+      pctEl.textContent = '—';
+      fillEl.style.width = '0%';
+      fillEl.className = 'spending-bar-fill';
+      legendDot.className = 'legend-dot spent';
+      legendSpentEl.textContent = `Spent: ${fmt(spent)}`;
+      legendRemainingEl.textContent = 'No budget set';
+      return;
+    }
+
+    const pct = Math.min((spent / budget) * 100, 100);
+    const actualPct = (spent / budget) * 100;
+    pctEl.textContent = `${Math.round(actualPct)}%`;
+    fillEl.style.width = `${pct}%`;
+
+    fillEl.classList.remove('warn', 'over');
+    legendDot.classList.remove('warn', 'over');
+    if (actualPct > 100) {
+      fillEl.classList.add('over');
+      legendDot.classList.add('over');
+    } else if (actualPct >= 75) {
+      fillEl.classList.add('warn');
+      legendDot.classList.add('warn');
+    }
+
+    legendSpentEl.textContent = `Spent: ${fmt(spent)}`;
+    legendRemainingEl.textContent = `Remaining: ${fmt(Math.max(budget - spent, 0))}`;
   }
 
   function renderExpenses() {
