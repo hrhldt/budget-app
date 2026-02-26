@@ -67,8 +67,10 @@ Core requirements
 - Daily spending guidance
     - When adding an expense, calculate the daily spending allowance.
     - Daily allowance = (budget - totalSpent) / remaining days in current month.
-    - Display message: "You can spend {value} every day and still be within the budget".
+    - Display message: "You can spend {value} every day for the {remaining_days_in_month} and still be within the budget".
+    - {value} and {remaining_days_in_month} should be bold.
     - {value} should be formatted as a currency amount using the browser's locale (via Intl.NumberFormat).
+    - {remaining_days_in_month} should show the number of days remaining, e.g. "remaining 5 days".
 - Status indicator
     - If totalSpent > budget, show a red warning state.
     - If totalSpent <= budget, show a green state.

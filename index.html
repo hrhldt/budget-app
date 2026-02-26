@@ -1001,11 +1001,12 @@ h1, h2, h3 {
     const daysLeft = daysRemainingInMonth();
     if (remaining > 0 && daysLeft > 0) {
       const daily = remaining / daysLeft;
-      dailyGuidance.textContent = `You can spend ${fmt(daily)} every day and still be within the budget`;
+      const daysText = daysLeft === 1 ? 'remaining 1 day' : `remaining ${daysLeft} days`;
+      dailyGuidance.innerHTML = `You can spend <strong>${escapeHtml(fmt(daily))}</strong> every day for the <strong>${escapeHtml(daysText)}</strong> and still be within the budget`;
     } else if (remaining <= 0) {
-      dailyGuidance.textContent = 'You have exceeded your budget!';
+      dailyGuidance.innerHTML = 'You have exceeded your budget!';
     } else {
-      dailyGuidance.textContent = '';
+      dailyGuidance.innerHTML = '';
     }
 
     renderExpenses();
