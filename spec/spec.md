@@ -95,6 +95,14 @@ UI/UX requirements
 - Support light and dark mode with a toggle.
 - Responsive layout for mobile and desktop.
 
+PWA requirements
+- Web app manifest (name, short_name, icons, display: standalone, theme_color, background_color).
+- Manifest and service worker are inlined via JS Blob URLs to keep the app as a single file.
+- Service worker provides offline support with a network-first caching strategy for navigation requests.
+- Service worker only registers when served over HTTP/HTTPS; gracefully skipped on file:// protocol.
+- Meta tags for theme-color (light & dark), apple-mobile-web-app-capable, apple-mobile-web-app-title, and description.
+- App is installable (Add to Home Screen) when served from a web server.
+
 Validation and edge cases
 - Prevent negative or zero amounts.
 - Reject empty name or unselected tag.
