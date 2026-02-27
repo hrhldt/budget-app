@@ -973,11 +973,12 @@ h1, h2, h3 {
   }
 
   function daysRemainingInMonth() {
-    // Only meaningful for the current calendar month
-    if (activeMonthId !== currentMonthId()) return 0;
+    const [y, m] = activeMonthId.split('-').map(Number);
     const now = new Date();
-    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-    return lastDay - now.getDate() + 1;
+    const total = new Date(y, m, 0).getDate();
+    if (activeMonthId < currentMonthId()) return 0;          // past
+    if (activeMonthId > currentMonthId()) return total;       // future
+    return total - now.getDate() + 1;                         // current
   }
 
   function monthDisplayName(id) {
@@ -1102,8 +1103,7 @@ h1, h2, h3 {
     }
 
     const daysLeft = daysRemainingInMonth();
-    const isCurrentMonth = activeMonthId === currentMonthId();
-    if (isCurrentMonth && remaining > 0 && daysLeft > 0) {
+    if (remaining > 0 && daysLeft > 0) {
       const daily = remaining / daysLeft;
       const daysText = daysLeft === 1 ? t('remainingDay') : t('remainingDays').replace('{n}', daysLeft);
       dailyGuidance.innerHTML = t('dailyGuidance').replace('{value}', escapeHtml(fmt(daily))).replace('{days}', escapeHtml(daysText));
