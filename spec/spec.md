@@ -15,6 +15,7 @@ Key user flows
 - Add an expense with amount, name, and tag
 - See remaining budget and total spent for the current month
 - Edit and delete existing expenses
+- Navigate between months to view or manage past/future budgets
 
 Data model
 - Month
@@ -38,9 +39,10 @@ Data model
     - Giving
 
 Local storage
-- Storage key: cashually:v1
-- Persist the full Month object for the currently viewed month.
-- On load, restore last saved month; if none, initialize with current month and empty data.
+- Storage key: cashually:data
+- Persist a map of all Month objects keyed by month id (YYYY-MM).
+- On load, restore the current calendar month from the map; if none, initialize with current month and empty data.
+- When navigating to a month that has no saved data, initialize it with budget 0 and empty expenses.
 
 Core requirements
 - Budget
@@ -67,8 +69,14 @@ Core requirements
 - Status indicator
     - If totalSpent > budget, show a red warning state.
     - If totalSpent <= budget, show a green state.
+- Month navigation
+    - Left/right arrow buttons beside the month label allow navigating to previous/next months.
+    - Navigating changes the active month; all displayed data (budget, expenses, totals) reflects the active month.
+    - Each month's budget and expenses are stored independently.
+    - Daily spending guidance is only shown for the current calendar month.
 - Persistence
     - All budget and expenses persist via local storage.
+    - Data for all months is retained.
 
 UI/UX requirements
 - Modern, clean, minimal design with elevated polish.
@@ -101,7 +109,7 @@ Validation and edge cases
 - Reject empty name or unselected tag.
 - Allow decimal amounts with at most two digits.
 - If budget is unset, treat it as 0 and show remaining as negative when expenses exist.
-- When switching months (future enhancement), do not mix expenses across months.
+- Each month's data is independent; do not mix expenses across months.
 
 Acceptance criteria
 - User can add, edit, delete expenses and see totals update instantly.
@@ -109,6 +117,7 @@ Acceptance criteria
 - Red warning state only when totalSpent > budget.
 - Data persists after refresh and browser restart.
 - Dark mode toggle changes the full UI theme.
+- User can navigate between months and each month retains its own data.
 - App works by opening index.html directly from the filesystem (no HTTP server needed).
 
 Notes

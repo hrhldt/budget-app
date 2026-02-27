@@ -168,13 +168,42 @@ h1, h2, h3 {
 [data-theme="light"] .dark-icon { display: none; }
 [data-theme="dark"] .light-icon { display: none; }
 
-/* ---------- Month label ---------- */
+/* ---------- Month navigation ---------- */
+.month-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.month-nav-btn {
+  background: var(--surface);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: .85rem;
+  color: var(--text-secondary);
+  box-shadow: var(--shadow);
+  transition: background var(--transition), border-color var(--transition), color var(--transition), transform var(--transition);
+}
+.month-nav-btn:hover { background: var(--surface-hover); color: var(--text); transform: scale(1.08); }
+.month-nav-btn:active { transform: scale(.94); }
+
 .month-label {
   text-align: center;
   font-family: var(--font-heading);
   font-size: 1.1rem;
   color: var(--text-secondary);
-  margin-bottom: 20px;
+  min-width: 180px;
+  user-select: none;
 }
 
 /* ---------- Overview cards ---------- */
@@ -740,8 +769,12 @@ h1, h2, h3 {
       </div>
     </header>
 
-    <!-- Month display -->
-    <section class="month-label" id="monthLabel"></section>
+    <!-- Month navigation -->
+    <nav class="month-nav">
+      <button class="month-nav-btn" id="prevMonthBtn" aria-label="Previous month"><i class="fa-solid fa-chevron-left"></i></button>
+      <span class="month-label" id="monthLabel"></span>
+      <button class="month-nav-btn" id="nextMonthBtn" aria-label="Next month"><i class="fa-solid fa-chevron-right"></i></button>
+    </nav>
 
     <!-- Budget overview -->
     <section class="overview" id="overview">
@@ -853,13 +886,16 @@ h1, h2, h3 {
   'use strict';
 
   // ---- Constants ----
-  const STORAGE_KEY = 'cashually:v1';
+  const STORAGE_KEY = 'cashually:data';
+  const LEGACY_KEY = 'cashually:v1';
   const THEME_KEY = 'cashually:theme';
   const CURRENCY_KEY = 'cashually:currency';
 
   // ---- DOM refs ----
   const $ = (sel) => document.querySelector(sel);
   const monthLabel = $('#monthLabel');
+  const prevMonthBtn = $('#prevMonthBtn');
+  const nextMonthBtn = $('#nextMonthBtn');
   const budgetDisplay = $('#budgetDisplay');
   const spentDisplay = $('#spentDisplay');
   const remainingDisplay = $('#remainingDisplay');
@@ -884,6 +920,8 @@ h1, h2, h3 {
   const currencySelect = $('#currencySelect');
 
   // ---- State ----
+  let allMonths = {};   // { "YYYY-MM": { id, budget, expenses } }
+  let activeMonthId = currentMonthId();
   let monthData = null;
   let editingId = null;
 
@@ -925,6 +963,8 @@ h1, h2, h3 {
   }
 
   function daysRemainingInMonth() {
+    // Only meaningful for the current calendar month
+    if (activeMonthId !== currentMonthId()) return 0;
     const now = new Date();
     const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
     return lastDay - now.getDate() + 1;
@@ -938,25 +978,60 @@ h1, h2, h3 {
 
   // ---- Persistence ----
   function save() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(monthData));
+    allMonths[activeMonthId] = monthData;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(allMonths));
   }
 
   function load() {
+    // Migrate from legacy single-month storage
+    const legacy = localStorage.getItem(LEGACY_KEY);
+    if (legacy) {
+      try {
+        const parsed = JSON.parse(legacy);
+        if (parsed && parsed.id) {
+          allMonths[parsed.id] = parsed;
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(allMonths));
+          localStorage.removeItem(LEGACY_KEY);
+        }
+      } catch { /* ignore */ }
+    }
+
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       try {
         const parsed = JSON.parse(raw);
-        if (parsed && parsed.id === currentMonthId()) {
-          monthData = parsed;
-          return;
+        if (parsed && typeof parsed === 'object') {
+          allMonths = parsed;
         }
-      } catch { /* corrupted — fall through */ }
+      } catch { /* corrupted — start fresh */ }
     }
-    monthData = {
-      id: currentMonthId(),
-      budget: 0,
-      expenses: [],
-    };
+
+    loadActiveMonth();
+  }
+
+  function loadActiveMonth() {
+    if (allMonths[activeMonthId]) {
+      monthData = allMonths[activeMonthId];
+    } else {
+      monthData = {
+        id: activeMonthId,
+        budget: 0,
+        expenses: [],
+      };
+      allMonths[activeMonthId] = monthData;
+    }
+  }
+
+  // ---- Month navigation ----
+  function shiftMonth(delta) {
+    const [y, m] = activeMonthId.split('-').map(Number);
+    const d = new Date(y, m - 1 + delta, 1);
+    const newY = d.getFullYear();
+    const newM = String(d.getMonth() + 1).padStart(2, '0');
+    activeMonthId = `${newY}-${newM}`;
+    loadActiveMonth();
+    resetExpenseForm();
+    render();
   }
 
   // ---- Theme ----
@@ -999,7 +1074,8 @@ h1, h2, h3 {
     }
 
     const daysLeft = daysRemainingInMonth();
-    if (remaining > 0 && daysLeft > 0) {
+    const isCurrentMonth = activeMonthId === currentMonthId();
+    if (isCurrentMonth && remaining > 0 && daysLeft > 0) {
       const daily = remaining / daysLeft;
       const daysText = daysLeft === 1 ? 'remaining 1 day' : `remaining ${daysLeft} days`;
       dailyGuidance.innerHTML = `You can spend <strong>${escapeHtml(fmt(daily))}</strong> every day for the <strong>${escapeHtml(daysText)}</strong> and still be within the budget`;
@@ -1187,6 +1263,9 @@ h1, h2, h3 {
   }
 
   // ---- Event handlers ----
+  prevMonthBtn.addEventListener('click', () => shiftMonth(-1));
+  nextMonthBtn.addEventListener('click', () => shiftMonth(1));
+
   themeToggle.addEventListener('click', toggleTheme);
 
   currencySelect.addEventListener('change', () => {
