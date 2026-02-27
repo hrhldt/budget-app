@@ -31,16 +31,13 @@
   --text-secondary: #6e6e73;
   --border: rgba(0,0,0,.08);
   --accent: #5856d6;
-  --accent-hover: #4744b8;
   --accent-gradient: linear-gradient(135deg, #5856d6 0%, #af52de 100%);
   --danger: #e53935;
-  --danger-hover: #c62828;
   --green: #34c759;
   --green-bg: rgba(52,199,89,.1);
   --red: #ff3b30;
   --red-bg: rgba(255,59,48,.1);
   --shadow: 0 1px 3px rgba(0,0,0,.06), 0 2px 8px rgba(0,0,0,.04);
-  --shadow-md: 0 4px 12px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.04);
   --shadow-lg: 0 12px 40px rgba(0,0,0,.12);
   --radius: 16px;
   --radius-sm: 10px;
@@ -59,14 +56,12 @@
   --text-secondary: #98989d;
   --border: rgba(255,255,255,.08);
   --accent: #7d7aff;
-  --accent-hover: #6e6bef;
   --accent-gradient: linear-gradient(135deg, #7d7aff 0%, #bf5af2 100%);
   --green: #30d158;
   --green-bg: rgba(48,209,88,.12);
   --red: #ff453a;
   --red-bg: rgba(255,69,58,.12);
   --shadow: 0 1px 3px rgba(0,0,0,.4), 0 2px 8px rgba(0,0,0,.2);
-  --shadow-md: 0 4px 12px rgba(0,0,0,.3);
   --shadow-lg: 0 12px 40px rgba(0,0,0,.5);
 }
 
@@ -341,16 +336,6 @@ h1, h2, h3 {
   background: linear-gradient(135deg, #ff3b30 0%, #ff6259 100%);
 }
 
-.spending-bar-budget-mark {
-  position: absolute;
-  top: -3px;
-  bottom: -3px;
-  width: 2px;
-  background: var(--text);
-  border-radius: 1px;
-  opacity: .35;
-}
-
 .spending-graph-legend {
   display: flex;
   justify-content: space-between;
@@ -475,15 +460,6 @@ h1, h2, h3 {
 }
 .btn-secondary:hover { background: var(--border); }
 
-.btn-danger {
-  background: transparent;
-  color: var(--danger);
-  border: 1px solid var(--danger);
-  padding: 6px 12px;
-  font-size: .8rem;
-}
-.btn-danger:hover { background: var(--red-bg); }
-
 .btn-icon {
   background: transparent;
   border: 1px solid var(--border);
@@ -556,7 +532,6 @@ h1, h2, h3 {
   flex-direction: column;
   gap: 6px;
 }
-.tag-breakdown:empty + .tag-breakdown-section { display: none; }
 .tag-breakdown-row {
   display: flex;
   align-items: center;
@@ -657,19 +632,6 @@ h1, h2, h3 {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.expense-tag {
-  display: inline-block;
-  font-size: .7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: .3px;
-  color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 12%, transparent);
-  padding: 2px 8px;
-  border-radius: 999px;
-  margin-top: 2px;
 }
 
 .expense-amount {
@@ -921,9 +883,15 @@ h1, h2, h3 {
   const formTitle = $('#formTitle');
   const formError = $('#formError');
   const expenseList = $('#expenseList');
-  const emptyState = $('#emptyState');
   const themeToggle = $('#themeToggle');
   const currencySelect = $('#currencySelect');
+  const spendingPct = $('#spendingPct');
+  const spendingBarFill = $('#spendingBarFill');
+  const legendDotSpent = $('#legendDotSpent');
+  const legendSpent = $('#legendSpent');
+  const legendRemaining = $('#legendRemaining');
+  const tagBreakdown = $('#tagBreakdown');
+  const tagBreakdownSection = $('#tagBreakdownSection');
 
   // ---- State ----
   let allMonths = {};   // { "YYYY-MM": { id, budget, expenses } }
@@ -944,27 +912,12 @@ h1, h2, h3 {
   }
 
   // ---- Currency ----
-  function getSelectedCurrency() {
-    return localStorage.getItem(CURRENCY_KEY) || 'USD';
-  }
-
-  function initCurrency() {
-    const saved = getSelectedCurrency();
-    currencySelect.value = saved;
-  }
-
   function fmt(n) {
-    const currency = getSelectedCurrency();
+    const currency = localStorage.getItem(CURRENCY_KEY) || 'USD';
     try {
-      return new Intl.NumberFormat(navigator.language, {
-        style: 'currency',
-        currency,
-      }).format(Number(n));
+      return new Intl.NumberFormat(navigator.language, { style: 'currency', currency }).format(Number(n));
     } catch {
-      return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-      }).format(Number(n));
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(n));
     }
   }
 
@@ -1041,12 +994,6 @@ h1, h2, h3 {
   }
 
   // ---- Theme ----
-  function initTheme() {
-    const saved = localStorage.getItem(THEME_KEY);
-    const theme = saved || 'light';
-    document.documentElement.setAttribute('data-theme', theme);
-  }
-
   function toggleTheme() {
     const current = document.documentElement.getAttribute('data-theme');
     const next = current === 'dark' ? 'light' : 'dark';
@@ -1095,116 +1042,78 @@ h1, h2, h3 {
   }
 
   function renderSpendingGraph(spent, budget) {
-    const pctEl = $('#spendingPct');
-    const fillEl = $('#spendingBarFill');
-    const legendDot = $('#legendDotSpent');
-    const legendSpentEl = $('#legendSpent');
-    const legendRemainingEl = $('#legendRemaining');
-
     if (budget <= 0) {
-      pctEl.textContent = '—';
-      fillEl.style.width = '0%';
-      fillEl.className = 'spending-bar-fill';
-      legendDot.className = 'legend-dot spent';
-      legendSpentEl.textContent = `Spent: ${fmt(spent)}`;
-      legendRemainingEl.textContent = 'No budget set';
+      spendingPct.textContent = '—';
+      spendingBarFill.style.width = '0%';
+      spendingBarFill.className = 'spending-bar-fill';
+      legendDotSpent.className = 'legend-dot spent';
+      legendSpent.textContent = `Spent: ${fmt(spent)}`;
+      legendRemaining.textContent = 'No budget set';
       return;
     }
 
-    const pct = Math.min((spent / budget) * 100, 100);
-    const actualPct = (spent / budget) * 100;
-    pctEl.textContent = `${Math.round(actualPct)}%`;
-    fillEl.style.width = `${pct}%`;
+    const pct = (spent / budget) * 100;
+    spendingPct.textContent = `${Math.round(pct)}%`;
+    spendingBarFill.style.width = `${Math.min(pct, 100)}%`;
 
-    fillEl.classList.remove('warn', 'over');
-    legendDot.classList.remove('warn', 'over');
-    if (actualPct > 100) {
-      fillEl.classList.add('over');
-      legendDot.classList.add('over');
-    } else if (actualPct >= 75) {
-      fillEl.classList.add('warn');
-      legendDot.classList.add('warn');
-    }
+    spendingBarFill.classList.remove('warn', 'over');
+    legendDotSpent.classList.remove('warn', 'over');
+    const level = pct > 100 ? 'over' : pct >= 75 ? 'warn' : '';
+    if (level) { spendingBarFill.classList.add(level); legendDotSpent.classList.add(level); }
 
-    legendSpentEl.textContent = `Spent: ${fmt(spent)}`;
-    legendRemainingEl.textContent = `Remaining: ${fmt(Math.max(budget - spent, 0))}`;
+    legendSpent.textContent = `Spent: ${fmt(spent)}`;
+    legendRemaining.textContent = `Remaining: ${fmt(Math.max(budget - spent, 0))}`;
   }
 
   function renderExpenses() {
     expenseList.innerHTML = '';
-    const breakdownEl = $('#tagBreakdown');
-    const breakdownSection = $('#tagBreakdownSection');
-    breakdownEl.innerHTML = '';
+    tagBreakdown.innerHTML = '';
 
     if (monthData.expenses.length === 0) {
-      const p = document.createElement('p');
-      p.className = 'empty-state';
-      p.textContent = 'No expenses yet. Add one above!';
-      expenseList.appendChild(p);
-      breakdownSection.classList.add('hidden');
+      expenseList.innerHTML = '<p class="empty-state">No expenses yet. Add one above!</p>';
+      tagBreakdownSection.classList.add('hidden');
       return;
     }
 
-    breakdownSection.classList.remove('hidden');
+    tagBreakdownSection.classList.remove('hidden');
 
-    // Group expenses by tag
+    // Group by tag, sort by total descending
     const grouped = {};
-    monthData.expenses.forEach((exp) => {
-      if (!grouped[exp.tag]) grouped[exp.tag] = [];
-      grouped[exp.tag].push(exp);
-    });
-
-    // Tag totals sorted by amount descending
-    const tagTotals = Object.entries(grouped).map(([tag, exps]) => ({
-      tag,
-      total: exps.reduce((s, e) => s + e.amount, 0),
-      expenses: [...exps].sort((a, b) => b.createdAt - a.createdAt),
-    })).sort((a, b) => b.total - a.total);
-
+    monthData.expenses.forEach(e => (grouped[e.tag] ??= []).push(e));
+    const tagTotals = Object.entries(grouped)
+      .map(([tag, exps]) => ({ tag, total: exps.reduce((s, e) => s + e.amount, 0), expenses: exps.sort((a, b) => b.createdAt - a.createdAt) }))
+      .sort((a, b) => b.total - a.total);
     const spent = totalSpent();
 
-    // Render tag breakdown summary
-    tagTotals.forEach(({ tag, total }) => {
-      const pct = spent > 0 ? (total / spent) * 100 : 0;
-      const row = document.createElement('div');
-      row.className = 'tag-breakdown-row';
-      row.innerHTML = `
-        <span class="tag-breakdown-label">${escapeHtml(tag)}</span>
-        <div class="tag-breakdown-bar"><div class="tag-breakdown-fill" style="width:${pct.toFixed(1)}%"></div></div>
-        <span class="tag-breakdown-amount">${fmt(total)}</span>
-      `;
-      breakdownEl.appendChild(row);
-    });
-
-    // Render grouped expense list
     tagTotals.forEach(({ tag, total, expenses }) => {
-      const header = document.createElement('div');
-      header.className = 'tag-group-header';
-      header.innerHTML = `<span>${escapeHtml(tag)}</span><span class="tag-group-subtotal">${fmt(total)}</span>`;
-      expenseList.appendChild(header);
+      // Tag breakdown row
+      const pct = spent > 0 ? (total / spent) * 100 : 0;
+      tagBreakdown.insertAdjacentHTML('beforeend', `
+        <div class="tag-breakdown-row">
+          <span class="tag-breakdown-label">${escapeHtml(tag)}</span>
+          <div class="tag-breakdown-bar"><div class="tag-breakdown-fill" style="width:${pct.toFixed(1)}%"></div></div>
+          <span class="tag-breakdown-amount">${fmt(total)}</span>
+        </div>`);
 
-      expenses.forEach((exp) => {
-        const item = document.createElement('div');
-        item.className = 'expense-item';
-        item.innerHTML = `
-          <div class="expense-info">
-            <div class="expense-name">${escapeHtml(exp.name)}</div>
-          </div>
-          <div class="expense-amount">${fmt(exp.amount)}</div>
-          <div class="expense-actions">
-            <button class="btn-icon" data-edit="${exp.id}" aria-label="Edit expense"><i class="fa-solid fa-pen"></i></button>
-            <button class="btn-icon" data-delete="${exp.id}" aria-label="Delete expense"><i class="fa-solid fa-trash"></i></button>
-          </div>
-        `;
-        expenseList.appendChild(item);
+      // Expense group header + items
+      expenseList.insertAdjacentHTML('beforeend',
+        `<div class="tag-group-header"><span>${escapeHtml(tag)}</span><span class="tag-group-subtotal">${fmt(total)}</span></div>`);
+      expenses.forEach(exp => {
+        expenseList.insertAdjacentHTML('beforeend', `
+          <div class="expense-item">
+            <div class="expense-info"><div class="expense-name">${escapeHtml(exp.name)}</div></div>
+            <div class="expense-amount">${fmt(exp.amount)}</div>
+            <div class="expense-actions">
+              <button class="btn-icon" data-edit="${exp.id}" aria-label="Edit"><i class="fa-solid fa-pen"></i></button>
+              <button class="btn-icon" data-delete="${exp.id}" aria-label="Delete"><i class="fa-solid fa-trash"></i></button>
+            </div>
+          </div>`);
       });
     });
   }
 
-  function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
+  function escapeHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
   // ---- Validation ----
@@ -1354,73 +1263,44 @@ h1, h2, h3 {
   });
 
   // ---- Init ----
-  initTheme();
-  initCurrency();
+  document.documentElement.setAttribute('data-theme', localStorage.getItem(THEME_KEY) || 'light');
+  currencySelect.value = localStorage.getItem(CURRENCY_KEY) || 'USD';
   load();
   render();
 
-  // ---- PWA: Inline Manifest & Service Worker ----
-  // Convert SVG icon to PNG data URL for PWA compatibility
+  // ---- PWA ----
   function generatePwaIcon(size) {
-    return new Promise((resolve) => {
-      const canvas = document.createElement('canvas');
-      canvas.width = size;
-      canvas.height = size;
-      const ctx = canvas.getContext('2d');
+    return new Promise(resolve => {
+      const c = document.createElement('canvas'); c.width = c.height = size;
       const img = new Image();
-      img.onload = () => {
-        ctx.drawImage(img, 0, 0, size, size);
-        resolve(canvas.toDataURL('image/png'));
-      };
+      img.onload = () => { c.getContext('2d').drawImage(img, 0, 0, size, size); resolve(c.toDataURL('image/png')); };
       img.onerror = () => resolve(null);
       img.src = 'icon.svg';
     });
   }
 
-  async function initPwa() {
-    // Generate PNG icons from SVG
-    const sizes = [192, 512];
-    const pngIcons = [];
-    for (const size of sizes) {
-      const dataUrl = await generatePwaIcon(size);
-      if (dataUrl) {
-        pngIcons.push({ src: dataUrl, sizes: `${size}x${size}`, type: 'image/png', purpose: 'any' });
-      }
-    }
-
-    // Set apple-touch-icon to PNG
-    const icon180 = await generatePwaIcon(180);
-    if (icon180) {
-      const appleTouchIcon = document.getElementById('appleTouchIcon');
-      if (appleTouchIcon) appleTouchIcon.href = icon180;
-    }
-
-    // Fall back to SVG if PNG generation failed
-    const iconUrl = new URL('icon.svg', location.href).href;
-    const iconEntries = pngIcons.length > 0
-      ? pngIcons
-      : [{ src: iconUrl, sizes: 'any', type: 'image/svg+xml', purpose: 'any' }];
-
-    // Manifest via Blob URL
-    const manifest = {
-      name: 'Cashually - Budget Tracker',
-      short_name: 'Cashually',
-      description: 'A simple, elegant budget tracker.',
-      start_url: location.href,
-      display: 'standalone',
-      background_color: '#f2f2f7',
-      theme_color: '#5856d6',
-      icons: iconEntries
-    };
-    const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
-    const manifestLink = document.createElement('link');
-    manifestLink.rel = 'manifest';
-    manifestLink.href = URL.createObjectURL(manifestBlob);
-    document.head.appendChild(manifestLink);
-  }
-
   if (location.protocol !== 'file:') {
-    initPwa();
+    (async () => {
+      const pngIcons = (await Promise.all([192, 512].map(async s => {
+        const url = await generatePwaIcon(s);
+        return url ? { src: url, sizes: `${s}x${s}`, type: 'image/png', purpose: 'any' } : null;
+      }))).filter(Boolean);
+
+      const icon180 = await generatePwaIcon(180);
+      if (icon180) $('#appleTouchIcon')?.setAttribute('href', icon180);
+
+      const icons = pngIcons.length ? pngIcons
+        : [{ src: new URL('icon.svg', location.href).href, sizes: 'any', type: 'image/svg+xml', purpose: 'any' }];
+      const link = document.createElement('link');
+      link.rel = 'manifest';
+      link.href = URL.createObjectURL(new Blob([JSON.stringify({
+        name: 'Cashually - Budget Tracker', short_name: 'Cashually',
+        description: 'A simple, elegant budget tracker.',
+        start_url: location.href, display: 'standalone',
+        background_color: '#f2f2f7', theme_color: '#5856d6', icons
+      })], { type: 'application/json' }));
+      document.head.appendChild(link);
+    })();
   }
 
   // Service worker via Blob URL (only when served over HTTP/HTTPS)
