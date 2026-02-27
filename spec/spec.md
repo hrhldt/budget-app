@@ -95,6 +95,7 @@ UI/UX requirements
 - Default currency is USD.
 - Support light and dark mode with a toggle.
 - Responsive layout for mobile and desktop.
+- On narrow screens (mobile), expense cards use a two-row grid: name and amount share the top row, action buttons sit below separated by a subtle border.
 
 PWA requirements
 - Web app manifest (name, short_name, icons, display: standalone, theme_color, background_color).

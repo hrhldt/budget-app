@@ -719,8 +719,30 @@ h1, h2, h3 {
   .expense-form .form-row {
     grid-template-columns: 1fr;
   }
-  .expense-item { flex-wrap: wrap; }
-  .expense-amount { width: 100%; text-align: right; }
+  .expense-item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    gap: 4px 12px;
+    align-items: center;
+  }
+  .expense-info {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .expense-amount {
+    grid-column: 2;
+    grid-row: 1;
+    text-align: right;
+  }
+  .expense-actions {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-content: flex-end;
+    padding-top: 4px;
+    border-top: 1px solid var(--border);
+    margin-top: 4px;
+  }
 }
   </style>
 </head>
