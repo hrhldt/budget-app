@@ -94,6 +94,30 @@ h1, h2, h3 {
   max-width: 720px;
   margin: 0 auto;
   padding: 24px 16px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ---------- Section card (uniform container) ---------- */
+.section {
+  background: var(--surface);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.section-title {
+  font-size: .75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--text-secondary);
+  margin-bottom: 14px;
 }
 
 /* ---------- Header ---------- */
@@ -101,7 +125,6 @@ h1, h2, h3 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
 }
 
 .header-controls {
@@ -174,7 +197,6 @@ h1, h2, h3 {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  margin-bottom: 20px;
 }
 
 .month-nav-btn {
@@ -211,24 +233,19 @@ h1, h2, h3 {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
-  margin-bottom: 20px;
 }
 
 .overview-card {
-  background: var(--surface);
-  -webkit-backdrop-filter: var(--blur);
-  backdrop-filter: var(--blur);
+  background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px 16px;
+  border-radius: var(--radius-sm);
+  padding: 16px 14px;
   text-align: center;
-  box-shadow: var(--shadow);
   position: relative;
-  transition: background var(--transition), border-color var(--transition), transform var(--transition), box-shadow var(--transition);
+  transition: background var(--transition), border-color var(--transition), transform var(--transition);
 }
 .overview-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
 }
 
 .overview-label {
@@ -276,31 +293,12 @@ h1, h2, h3 {
 .remaining-card.status-over .overview-value { color: var(--red); }
 
 /* ---------- Spending graph ---------- */
-.spending-graph {
-  background: var(--surface);
-  -webkit-backdrop-filter: var(--blur);
-  backdrop-filter: var(--blur);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: var(--shadow);
-  transition: background var(--transition), border-color var(--transition);
-}
 
 .spending-graph-header {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
   margin-bottom: 10px;
-}
-
-.spending-graph-title {
-  font-size: .75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: .5px;
-  color: var(--text-secondary);
 }
 
 .spending-graph-pct {
@@ -371,19 +369,11 @@ h1, h2, h3 {
 .legend-dot.remaining { background: var(--bg); border: 1px solid var(--border); }
 
 /* ---------- Daily guidance ---------- */
+.daily-guidance-section:has(.daily-guidance:empty) { display: none; }
 .daily-guidance {
-  background: var(--surface);
-  -webkit-backdrop-filter: var(--blur);
-  backdrop-filter: var(--blur);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px 20px;
-  margin-bottom: 24px;
   font-size: .9rem;
   color: var(--text-secondary);
   text-align: center;
-  box-shadow: var(--shadow);
-  transition: background var(--transition), border-color var(--transition);
 }
 .daily-guidance:empty { display: none; }
 
@@ -500,13 +490,6 @@ h1, h2, h3 {
 .btn-icon:active { transform: scale(.95); }
 
 /* ---------- Expense form ---------- */
-.expense-form-section {
-  margin-bottom: 28px;
-}
-.expense-form-section h2 {
-  font-size: 1.1rem;
-  margin-bottom: 12px;
-}
 
 .expense-form .form-row {
   display: grid;
@@ -560,13 +543,6 @@ h1, h2, h3 {
 }
 
 /* ---------- Tag breakdown ---------- */
-.tag-breakdown-section {
-  margin-bottom: 28px;
-}
-.tag-breakdown-section h2 {
-  font-size: 1.1rem;
-  margin-bottom: 12px;
-}
 .tag-breakdown {
   display: flex;
   flex-direction: column;
@@ -577,13 +553,10 @@ h1, h2, h3 {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: var(--surface);
-  -webkit-backdrop-filter: var(--blur);
-  backdrop-filter: var(--blur);
+  background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 10px 14px;
-  box-shadow: var(--shadow);
   transition: background var(--transition), border-color var(--transition), transform var(--transition);
 }
 .tag-breakdown-row:hover {
@@ -639,10 +612,6 @@ h1, h2, h3 {
 }
 
 /* ---------- Expense list ---------- */
-.expense-list-section h2 {
-  font-size: 1.1rem;
-  margin-bottom: 12px;
-}
 
 .expense-list {
   display: flex;
@@ -661,16 +630,13 @@ h1, h2, h3 {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: var(--surface);
-  -webkit-backdrop-filter: var(--blur);
-  backdrop-filter: var(--blur);
+  background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 14px 16px;
-  box-shadow: var(--shadow);
-  transition: background var(--transition), border-color var(--transition), transform var(--transition), box-shadow var(--transition);
+  transition: background var(--transition), border-color var(--transition), transform var(--transition);
 }
-.expense-item:hover { background: var(--surface-hover); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.expense-item:hover { background: var(--surface-hover); transform: translateY(-1px); }
 
 .expense-info {
   flex: 1;
@@ -715,6 +681,8 @@ h1, h2, h3 {
 
 /* ---------- Responsive ---------- */
 @media (max-width: 560px) {
+  .app { gap: 12px; }
+  .section { padding: 16px; }
   .overview { grid-template-columns: 1fr; }
   .expense-form .form-row {
     grid-template-columns: 1fr;
@@ -799,26 +767,29 @@ h1, h2, h3 {
     </nav>
 
     <!-- Budget overview -->
-    <section class="overview" id="overview">
-      <div class="overview-card budget-card">
-        <span class="overview-label">Budget</span>
-        <span class="overview-value" id="budgetDisplay"></span>
-        <button class="btn-edit-budget" id="editBudgetBtn" aria-label="Edit budget"><i class="fa-solid fa-pen-to-square"></i></button>
-      </div>
-      <div class="overview-card spent-card">
-        <span class="overview-label">Spent</span>
-        <span class="overview-value" id="spentDisplay"></span>
-      </div>
-      <div class="overview-card remaining-card" id="remainingCard">
-        <span class="overview-label">Remaining</span>
-        <span class="overview-value" id="remainingDisplay"></span>
+    <section class="section" id="overview">
+      <h2 class="section-title">Overview</h2>
+      <div class="overview">
+        <div class="overview-card budget-card">
+          <span class="overview-label">Budget</span>
+          <span class="overview-value" id="budgetDisplay"></span>
+          <button class="btn-edit-budget" id="editBudgetBtn" aria-label="Edit budget"><i class="fa-solid fa-pen-to-square"></i></button>
+        </div>
+        <div class="overview-card spent-card">
+          <span class="overview-label">Spent</span>
+          <span class="overview-value" id="spentDisplay"></span>
+        </div>
+        <div class="overview-card remaining-card" id="remainingCard">
+          <span class="overview-label">Remaining</span>
+          <span class="overview-value" id="remainingDisplay"></span>
+        </div>
       </div>
     </section>
 
     <!-- Spending graph -->
-    <section class="spending-graph" id="spendingGraph">
+    <section class="section spending-graph" id="spendingGraph">
       <div class="spending-graph-header">
-        <span class="spending-graph-title">Budget Used</span>
+        <span class="section-title" style="margin-bottom:0">Budget Used</span>
         <span class="spending-graph-pct" id="spendingPct">0%</span>
       </div>
       <div class="spending-bar-track">
@@ -831,7 +802,9 @@ h1, h2, h3 {
     </section>
 
     <!-- Daily guidance -->
-    <section class="daily-guidance" id="dailyGuidance"></section>
+    <section class="section daily-guidance-section" id="dailyGuidanceSection">
+      <div class="daily-guidance" id="dailyGuidance"></div>
+    </section>
 
     <!-- Budget modal -->
     <div class="modal-overlay" id="budgetModal">
@@ -849,8 +822,8 @@ h1, h2, h3 {
     </div>
 
     <!-- Add / Edit expense form -->
-    <section class="expense-form-section">
-      <h2 id="formTitle">Add Expense</h2>
+    <section class="section expense-form-section">
+      <h2 class="section-title" id="formTitle">Add Expense</h2>
       <form id="expenseForm" class="expense-form" novalidate>
         <div class="form-row">
           <div class="form-group">
@@ -885,14 +858,14 @@ h1, h2, h3 {
     </section>
 
     <!-- Tag breakdown -->
-    <section class="tag-breakdown-section" id="tagBreakdownSection">
-      <h2>Spending by Tag</h2>
+    <section class="section tag-breakdown-section" id="tagBreakdownSection">
+      <h2 class="section-title">Spending by Tag</h2>
       <div class="tag-breakdown" id="tagBreakdown"></div>
     </section>
 
     <!-- Expense list -->
-    <section class="expense-list-section">
-      <h2>Expenses</h2>
+    <section class="section expense-list-section">
+      <h2 class="section-title">Expenses</h2>
       <div class="expense-list" id="expenseList">
         <p class="empty-state" id="emptyState">No expenses yet. Add one above!</p>
       </div>
