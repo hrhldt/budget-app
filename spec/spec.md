@@ -97,6 +97,15 @@ UI/UX requirements
 - Responsive layout for mobile and desktop.
 - On narrow screens (mobile), expense cards use a two-row grid: name and amount share the top row, action buttons sit below separated by a subtle border.
 
+Localization
+- All user-facing strings are externalized into an i18n dictionary keyed by language code.
+- Supported languages: English (en), Danish (da).
+- Language selector in the header allows switching language at any time.
+- Selected language is persisted to local storage (key: cashually:lang). Default is English.
+- Tag names are translated for display only; data model values remain in English.
+- Month names use the selected language's locale for formatting (e.g., en-US, da-DK).
+- Adding a new language requires only adding a new entry to the i18n dictionary object.
+
 PWA requirements
 - Web app manifest (name, short_name, icons, display: standalone, theme_color, background_color).
 - Manifest and service worker are inlined via JS Blob URLs to keep the app as a single file.
