@@ -28,21 +28,14 @@ Data model
     - tag: string (one of the predefined tags listed below)
     - createdAt: number (unix ms)
 - Predefined Tags (user must select one; no free-text entry)
-    - Housing
-    - Transportation
+    - Home
+    - Transport
     - Food
-    - Utilities
-    - Clothing
-    - Medical/Healthcare
-    - Insurance
-    - Household Items/Supplies
-    - Personal
-    - Debt
-    - Retirement
+    - Health
+    - Lifestyle
+    - Finance
     - Education
-    - Savings
-    - Gifts/Donations
-    - Entertainment
+    - Giving
 
 Local storage
 - Storage key: cashually:v1
